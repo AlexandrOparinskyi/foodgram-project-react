@@ -51,11 +51,17 @@ class CustomUserCreateSerializer(UserCreateSerializer):
 
 
 class CustomUserSerializer(UserSerializer):
+    is_subscribe = serializers.SerializerMethodField(
+        required=False
+    )
 
     class Meta:
-        fields = ['id', 'email', 'username',
-                  'first_name', 'last_name']
+        fields = ['id', 'email', 'username', 'first_name',
+                  'last_name', 'is_subscribe']
         model = User
+
+    def get_is_subscribe(self, obj):
+        return obj.username.title()
 
 
 class CustomTokenSerializer(TokenCreateSerializer):
