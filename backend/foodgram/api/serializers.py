@@ -5,6 +5,9 @@ from djoser.serializers import (UserSerializer,
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth import authenticate
+from recipes.models import (Ingredients,
+                            Tags,
+                            Recipe)
 
 
 class CustomUserCreateSerializer(UserCreateSerializer):
@@ -86,3 +89,17 @@ class CustomTokenSerializer(TokenCreateSerializer):
         if self.user and self.user.is_active:
             return attrs
         self.fail("invalid_credentials")
+
+
+class IngredientsSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = ['id', 'name', 'measurement_unit']
+        model = Ingredients
+
+
+class TagsSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = ['id', 'name', 'color', 'slug']
+        model = Tags
