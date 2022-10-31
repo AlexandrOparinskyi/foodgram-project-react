@@ -1,7 +1,9 @@
-from djoser.views import UserViewSet
-from .serializers import CustomUserSerializer, CustomUserCreateSerializer
 from django.contrib.auth.models import User
-from rest_framework.pagination import PageNumberPagination
+from djoser.views import UserViewSet
+from rest_framework.generics import GenericAPIView
+from rest_framework.response import Response
+
+from .serializers import CustomUserSerializer, CustomUserCreateSerializer
 
 
 class CustomUserViewSet(UserViewSet):

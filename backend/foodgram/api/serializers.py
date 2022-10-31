@@ -59,9 +59,10 @@ class CustomUserSerializer(UserSerializer):
         fields = ['id', 'email', 'username', 'first_name',
                   'last_name', 'is_subscribe']
         model = User
+        read_only_fields = ['__all__']
 
     def get_is_subscribe(self, obj):
-        return obj.username.title()
+        return False
 
 
 class CustomTokenSerializer(TokenCreateSerializer):
