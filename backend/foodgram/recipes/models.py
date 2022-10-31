@@ -50,6 +50,9 @@ class Ingredients(models.Model):
         null=True
     )
 
+    def __str__(self):
+        return self.name
+
 
 class Tags(models.Model):
     name = models.CharField(
@@ -65,6 +68,9 @@ class Tags(models.Model):
         max_length=200,
         unique=True
     )
+
+    def __str__(self):
+        return self.name
 
 
 class Recipe(models.Model):
@@ -90,3 +96,6 @@ class Recipe(models.Model):
         Tags,
         related_name='tags'
     )
+
+    def __str__(self):
+        return self.name
