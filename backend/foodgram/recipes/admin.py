@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Ingredients, Tags, Recipe
+from .models import Ingredients, Tags
 
 
 class IngredientsAdmin(admin.ModelAdmin):
@@ -10,10 +10,10 @@ class TagsAdmin(admin.ModelAdmin):
     list_display = ['id', 'name', 'color', 'slug']
 
 
-class RecipeAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name']
+# class RecipeAdmin(admin.ModelAdmin):
+#     list_display = ['id', 'name']
 
 
 admin.site.register(Ingredients, IngredientsAdmin)
 admin.site.register(Tags, TagsAdmin)
-admin.site.register(Recipe, RecipeAdmin)
+

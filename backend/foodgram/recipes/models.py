@@ -47,7 +47,6 @@ class Ingredients(models.Model):
         default=1,
         related_name='count',
         verbose_name='Количество ингредиентов',
-        null=True
     )
 
     def __str__(self):
@@ -67,34 +66,6 @@ class Tags(models.Model):
         'Уникальный слаг',
         max_length=200,
         unique=True
-    )
-
-    def __str__(self):
-        return self.name
-
-
-class Recipe(models.Model):
-    name = models.CharField(
-        'Название рецепта',
-        max_length=200
-    )
-    image = models.TextField(
-        'Картинка'
-    )
-    text = models.TextField(
-        'Описание рецепта'
-    )
-    cooking_time = models.IntegerField(
-        'Время приготовления (в минутах)',
-        default=1,
-    )
-    ingredients = models.ManyToManyField(
-        Ingredients,
-        related_name='ingredients'
-    )
-    tags = models.ManyToManyField(
-        Tags,
-        related_name='tags'
     )
 
     def __str__(self):

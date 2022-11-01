@@ -8,8 +8,7 @@ from .serializers import (CustomUserSerializer,
                           IngredientsSerializer,
                           TagsSerializer)
 from recipes.models import (Ingredients,
-                            Tags,
-                            Recipe)
+                            Tags)
 
 
 class CustomUserViewSet(UserViewSet):
@@ -39,3 +38,5 @@ class TagsViewSet(viewsets.ModelViewSet):
     http_method_names = ['get']
     permission_classes = [IsAuthenticatedOrReadOnly]
     pagination_class = None
+
+

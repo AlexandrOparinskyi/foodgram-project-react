@@ -1,13 +1,13 @@
+from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from djoser.serializers import (UserSerializer,
                                 UserCreateSerializer,
                                 TokenCreateSerializer)
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
-from django.contrib.auth import authenticate
+
 from recipes.models import (Ingredients,
-                            Tags,
-                            Recipe)
+                            Tags)
 
 
 class CustomUserCreateSerializer(UserCreateSerializer):
@@ -92,9 +92,10 @@ class CustomTokenSerializer(TokenCreateSerializer):
 
 
 class IngredientsSerializer(serializers.ModelSerializer):
+    amount = serializers.IntegerField()
 
     class Meta:
-        fields = ['id', 'name', 'measurement_unit']
+        fields = ['id', 'name', 'measurement_unit', 'amount']
         model = Ingredients
 
 
