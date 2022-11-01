@@ -5,9 +5,11 @@ from djoser.serializers import (UserSerializer,
                                 TokenCreateSerializer)
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
+from drf_extra_fields.fields import Base64ImageField
 
 from recipes.models import (Ingredients,
-                            Tags)
+                            Tags,
+                            Recipes)
 
 
 class CustomUserCreateSerializer(UserCreateSerializer):
@@ -104,3 +106,12 @@ class TagsSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ['id', 'name', 'color', 'slug']
         model = Tags
+
+
+class RecipesSerializer(serializers.ModelSerializer):
+    author = CustomUserSerializer(required=False)
+    image = Base64ImageField()
+
+    class Meta:
+        fields = ['id', 'name', 'author', 'image', 'text', 'cooking_time']
+        model = Recipes

@@ -6,9 +6,11 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from .serializers import (CustomUserSerializer,
                           CustomUserCreateSerializer,
                           IngredientsSerializer,
-                          TagsSerializer)
+                          TagsSerializer,
+                          RecipesSerializer)
 from recipes.models import (Ingredients,
-                            Tags)
+                            Tags,
+                            Recipes)
 
 
 class CustomUserViewSet(UserViewSet):
@@ -40,3 +42,9 @@ class TagsViewSet(viewsets.ModelViewSet):
     pagination_class = None
 
 
+class RecipesViewSet(viewsets.ModelViewSet):
+    queryset = Recipes.objects.all()
+    serializer_class = RecipesSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)

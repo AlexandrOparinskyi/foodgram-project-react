@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator
 
 
 class Subscribe(models.Model):
@@ -46,7 +47,7 @@ class Ingredients(models.Model):
         on_delete=models.SET_DEFAULT,
         default=1,
         related_name='count',
-        verbose_name='Количество ингредиентов',
+        verbose_name='Количество',
     )
 
     def __str__(self):
@@ -70,3 +71,30 @@ class Tags(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Recipes(models.Model):
+    name = models.CharField(
+        'Название рецепта',
+        max_length=200
+    )
+    image = models.ImageField(
+        'Картинка',
+        upload_to='media'
+    )
+    text = models.TextField(
+        'Описание'
+    )
+    cooking_time = models.IntegerField(
+        validators=[MinValueValidator(limit_value=1)]
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='author',
+        verbose_name='Автор рецепта'
+    )
+    tags = models.ManyToManyField(
+        Tags,
+        verbose_name='Тег рецепта'
+    )
