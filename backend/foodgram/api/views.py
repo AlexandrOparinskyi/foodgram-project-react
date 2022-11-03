@@ -37,7 +37,7 @@ class IngredientsViewSet(viewsets.ModelViewSet):
     queryset = Ingredients.objects.all()
     serializer_class = IngredientsSerializer
     http_method_names = ['get']
-    permission_classes = [IsAuthorOrReadOnly]
+    permission_classes = [AllowAny]
     pagination_class = None
 
 
@@ -47,7 +47,7 @@ class TagsViewSet(viewsets.ModelViewSet):
     """
     queryset = Tags.objects.all()
     serializer_class = TagsSerializer
-    http_method_names = [IsAuthorOrReadOnly]
+    http_method_names = ['get']
     permission_classes = [AllowAny]
     pagination_class = None
 
