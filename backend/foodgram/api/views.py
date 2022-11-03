@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from djoser.views import UserViewSet
 from rest_framework import viewsets
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 
 from .serializers import (CustomUserSerializer,
                           CustomUserCreateSerializer,
@@ -59,7 +59,8 @@ class RecipesViewSet(viewsets.ModelViewSet):
     queryset = Recipes.objects.all()
     serializer_class = RecipesSerializer
     http_method_names = ['get', 'post', 'patch', 'delete']
-    permission_classes = [IsAuthorOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly,
+                          IsAuthorOrReadOnly]
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
