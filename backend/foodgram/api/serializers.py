@@ -200,6 +200,7 @@ class RecipesSerializer(serializers.ModelSerializer):
             'cooking_time', instance.cooking_time
         )
         instance.tags.set(validated_data.get('tags', instance.tags.all()))
+        instance.save()
         return instance
 
     def to_representation(self, instance):

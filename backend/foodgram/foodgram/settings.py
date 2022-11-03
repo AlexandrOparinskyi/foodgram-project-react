@@ -1,5 +1,6 @@
 from pathlib import Path
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -136,5 +137,9 @@ DJOSER = {
         'current_user': 'api.serializers.CustomUserSerializer',
         'user': 'api.serializers.CustomUserSerializer',
         'token_create': 'api.serializers.CustomTokenSerializer',
+    },
+    "PERMISSIONS": {
+        'user': ['djoser.permissions.CurrentUserOrAdminOrReadOnly'],
+        'user_list': ['rest_framework.permissions.AllowAny']
     }
 }
