@@ -3,9 +3,9 @@ from django.contrib.auth.models import User
 from djoser.serializers import (UserSerializer,
                                 UserCreateSerializer,
                                 TokenCreateSerializer)
+from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
-from drf_extra_fields.fields import Base64ImageField
 
 from recipes.models import (Ingredients,
                             Tags,
@@ -151,11 +151,21 @@ class RecipesSerializer(serializers.ModelSerializer):
             created.save()
         return recipe
 
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get('name', instance.name)
+        instance.text = validated_data.get('text', instance.text)
+        instance.image = validated_data.get('image', instance.image)
+        instance.cooking_time = validated_data.get(
+            'cooking_time', instance.cooking_time
+        )
+        instance.save()
+        return instance
+
     def to_representation(self, instance):
         data = super(RecipesSerializer, self).to_representation(instance)
         data['tags'] = TagsSerializer(instance.tags.all(), many=True).data
         data['ingredients'] = AddIngredientSerializer(
-            instance.recipe_ingredient.all(),
+            instance.recipe_ingredients.all(),
             many=True
         ).data
         return data
