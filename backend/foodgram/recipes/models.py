@@ -26,13 +26,6 @@ class Subscribe(models.Model):
         ]
 
 
-class Amount(models.Model):
-    amount = models.IntegerField(
-        'Количество ингредиентов',
-        default=1
-    )
-
-
 class Ingredients(models.Model):
     name = models.CharField(
         'Название ингредиента',
@@ -41,13 +34,6 @@ class Ingredients(models.Model):
     measurement_unit = models.CharField(
         'Единицы измерения',
         max_length=200
-    )
-    amount = models.ForeignKey(
-        Amount,
-        on_delete=models.SET_DEFAULT,
-        default=1,
-        related_name='count',
-        verbose_name='Количество',
     )
 
     def __str__(self):
@@ -97,4 +83,30 @@ class Recipes(models.Model):
     tags = models.ManyToManyField(
         Tags,
         verbose_name='Тег рецепта'
+    )
+    ingredients = models.ManyToManyField(
+        Ingredients,
+        through='IngredientsForRecipe',
+        verbose_name='Ингредиент рецепта'
+    )
+
+    def __str__(self):
+        return self.name
+
+
+class IngredientsForRecipe(models.Model):
+    recipe = models.ForeignKey(
+        Recipes,
+        on_delete=models.CASCADE,
+        verbose_name='Название рецепта',
+        related_name='recipe_ingredient'
+    )
+    ingredients = models.ForeignKey(
+        Ingredients,
+        on_delete=models.CASCADE,
+        verbose_name='Ингредиент рецепта'
+    )
+    amount = models.IntegerField(
+        'Количество ингредиента',
+        validators=[MinValueValidator(1)]
     )

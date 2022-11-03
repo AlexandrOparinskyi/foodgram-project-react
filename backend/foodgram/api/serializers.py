@@ -9,7 +9,8 @@ from drf_extra_fields.fields import Base64ImageField
 
 from recipes.models import (Ingredients,
                             Tags,
-                            Recipes)
+                            Recipes,
+                            IngredientsForRecipe)
 
 
 class CustomUserCreateSerializer(UserCreateSerializer):
@@ -94,10 +95,9 @@ class CustomTokenSerializer(TokenCreateSerializer):
 
 
 class IngredientsSerializer(serializers.ModelSerializer):
-    amount = serializers.IntegerField()
 
     class Meta:
-        fields = ['id', 'name', 'measurement_unit', 'amount']
+        fields = ['id', 'name', 'measurement_unit']
         model = Ingredients
 
 
@@ -108,10 +108,54 @@ class TagsSerializer(serializers.ModelSerializer):
         model = Tags
 
 
+class AddIngredientSerializer(serializers.ModelSerializer):
+    amount = serializers.IntegerField()
+    id = serializers.PrimaryKeyRelatedField(
+        queryset=Ingredients.objects.all()
+    )
+
+    class Meta:
+        fields = ['id', 'amount']
+        model = IngredientsForRecipe
+
+
 class RecipesSerializer(serializers.ModelSerializer):
     author = CustomUserSerializer(required=False)
     image = Base64ImageField()
+    tags = serializers.PrimaryKeyRelatedField(
+        queryset=Tags.objects.all(),
+        many=True
+    )
+    ingredients = AddIngredientSerializer(
+        many=True,
+        write_only=True
+    )
 
     class Meta:
-        fields = ['id', 'name', 'author', 'image', 'text', 'cooking_time']
+        fields = ['id', 'ingredients', 'tags', 'name',
+                  'author', 'image', 'text', 'cooking_time']
         model = Recipes
+
+    def create(self, validated_data):
+        tags = validated_data.pop('tags')
+        ingredients = validated_data.pop('ingredients')
+        recipe = Recipes.objects.create(**validated_data)
+        for tag in tags:
+            recipe.tags.add(tag)
+        for ingredient in ingredients:
+            created = IngredientsForRecipe.objects.create(
+                recipe=recipe,
+                amount=ingredient['amount'],
+                ingredients=ingredient['id'],
+            )
+            created.save()
+        return recipe
+
+    def to_representation(self, instance):
+        data = super(RecipesSerializer, self).to_representation(instance)
+        data['tags'] = TagsSerializer(instance.tags.all(), many=True).data
+        data['ingredients'] = AddIngredientSerializer(
+            instance.recipe_ingredient.all(),
+            many=True
+        ).data
+        return data
