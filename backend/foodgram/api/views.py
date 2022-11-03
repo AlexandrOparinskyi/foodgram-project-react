@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from djoser.views import UserViewSet
 from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import AllowAny
 
 from .serializers import (CustomUserSerializer,
                           CustomUserCreateSerializer,
@@ -11,6 +11,7 @@ from .serializers import (CustomUserSerializer,
 from recipes.models import (Ingredients,
                             Tags,
                             Recipes)
+from .permissions import IsAuthorOrReadOnly
 
 
 class CustomUserViewSet(UserViewSet):
@@ -36,7 +37,7 @@ class IngredientsViewSet(viewsets.ModelViewSet):
     queryset = Ingredients.objects.all()
     serializer_class = IngredientsSerializer
     http_method_names = ['get']
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthorOrReadOnly]
     pagination_class = None
 
 
@@ -46,8 +47,8 @@ class TagsViewSet(viewsets.ModelViewSet):
     """
     queryset = Tags.objects.all()
     serializer_class = TagsSerializer
-    http_method_names = ['get']
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    http_method_names = [IsAuthorOrReadOnly]
+    permission_classes = [AllowAny]
     pagination_class = None
 
 
@@ -58,6 +59,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
     queryset = Recipes.objects.all()
     serializer_class = RecipesSerializer
     http_method_names = ['get', 'post', 'patch', 'delete']
+    permission_classes = [IsAuthorOrReadOnly]
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
