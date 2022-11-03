@@ -75,6 +75,8 @@ class CustomUserSerializer(UserSerializer):
         read_only_fields = ['__all__']
 
     def get_is_subscribe(self, obj):
+        if obj.username in obj.is_subscribe.all():
+            return True
         return False
 
 
@@ -108,6 +110,9 @@ class IngredientsSerializer(serializers.ModelSerializer):
     """
     Сериализатор списка ингредиентов. Метод GET.
     """
+    # id = serializers.ReadOnlyField(source='ingredients.id')
+    # name = serializers.ReadOnlyField(source='ingredients.name')
+    # measurement_unit = serializers.ReadOnlyField(source='ingredients.measurement_unit')
 
     class Meta:
         fields = ['id', 'name', 'measurement_unit']
@@ -135,6 +140,19 @@ class AddIngredientSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = ['id', 'amount']
+        model = IngredientsForRecipe
+
+
+class ShowIngredientsSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор показа ингредиентов после добавления в рецепт.
+    """
+    id = serializers.ReadOnlyField(source='ingredients.id')
+    name = serializers.ReadOnlyField(source='ingredients.name')
+    measurement_unit = serializers.ReadOnlyField(source='ingredients.measurement_unit')
+
+    class Meta:
+        fields = ['id', 'name', 'measurement_unit', 'amount']
         model = IngredientsForRecipe
 
 
@@ -181,13 +199,13 @@ class RecipesSerializer(serializers.ModelSerializer):
         instance.cooking_time = validated_data.get(
             'cooking_time', instance.cooking_time
         )
-        instance.save()
+        instance.tags.set(validated_data.get('tags', instance.tags.all()))
         return instance
 
     def to_representation(self, instance):
         data = super(RecipesSerializer, self).to_representation(instance)
         data['tags'] = TagsSerializer(instance.tags.all(), many=True).data
-        data['ingredients'] = AddIngredientSerializer(
+        data['ingredients'] = ShowIngredientsSerializer(
             instance.recipe_ingredients.all(),
             many=True
         ).data
