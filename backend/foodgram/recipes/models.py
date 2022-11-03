@@ -4,6 +4,9 @@ from django.core.validators import MinValueValidator
 
 
 class Subscribe(models.Model):
+    """
+    Модель подписок
+    """
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -27,6 +30,9 @@ class Subscribe(models.Model):
 
 
 class Ingredients(models.Model):
+    """
+    Модель списка ингредиентов.
+    """
     name = models.CharField(
         'Название ингредиента',
         max_length=200
@@ -41,6 +47,9 @@ class Ingredients(models.Model):
 
 
 class Tags(models.Model):
+    """
+    Модель списка тегов.
+    """
     name = models.CharField(
         'Название тега',
         max_length=200
@@ -60,6 +69,9 @@ class Tags(models.Model):
 
 
 class Recipes(models.Model):
+    """
+    Модель рецептов.
+    """
     name = models.CharField(
         'Название рецепта',
         max_length=200
@@ -95,6 +107,9 @@ class Recipes(models.Model):
 
 
 class IngredientsForRecipe(models.Model):
+    """
+    Модель ингредиентов для создания рецепта.
+    """
     recipe = models.ForeignKey(
         Recipes,
         on_delete=models.CASCADE,

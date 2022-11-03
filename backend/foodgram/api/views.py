@@ -14,6 +14,9 @@ from recipes.models import (Ingredients,
 
 
 class CustomUserViewSet(UserViewSet):
+    """
+    ViewsSet пользователя.
+    """
     http_method_names = ['post', 'get']
 
     def get_serializer_class(self):
@@ -27,6 +30,9 @@ class CustomUserViewSet(UserViewSet):
 
 
 class IngredientsViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet списка ингредиентов.
+    """
     queryset = Ingredients.objects.all()
     serializer_class = IngredientsSerializer
     http_method_names = ['get']
@@ -35,6 +41,9 @@ class IngredientsViewSet(viewsets.ModelViewSet):
 
 
 class TagsViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet списка тегов.
+    """
     queryset = Tags.objects.all()
     serializer_class = TagsSerializer
     http_method_names = ['get']
@@ -43,6 +52,9 @@ class TagsViewSet(viewsets.ModelViewSet):
 
 
 class RecipesViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet рецептов.
+    """
     queryset = Recipes.objects.all()
     serializer_class = RecipesSerializer
     http_method_names = ['get', 'post', 'patch', 'delete']

@@ -10,10 +10,14 @@ from rest_framework.validators import UniqueValidator
 from recipes.models import (Ingredients,
                             Tags,
                             Recipes,
-                            IngredientsForRecipe)
+                            IngredientsForRecipe,
+                            Subscribe)
 
 
 class CustomUserCreateSerializer(UserCreateSerializer):
+    """
+    Сериализатор для регистрации пользователя. Метод POST.
+    """
     email = serializers.EmailField(
         validators=[UniqueValidator(User.objects.all())]
     )
@@ -57,6 +61,9 @@ class CustomUserCreateSerializer(UserCreateSerializer):
 
 
 class CustomUserSerializer(UserSerializer):
+    """
+    Сериализатор пользователя. Метод GET.
+    """
     is_subscribe = serializers.SerializerMethodField(
         required=False
     )
@@ -72,6 +79,9 @@ class CustomUserSerializer(UserSerializer):
 
 
 class CustomTokenSerializer(TokenCreateSerializer):
+    """
+    Сериализатор создания/удаления токена. Метод POST.
+    """
     password = serializers.CharField()
 
     def __init__(self, *args, **kwargs):
@@ -95,6 +105,9 @@ class CustomTokenSerializer(TokenCreateSerializer):
 
 
 class IngredientsSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор списка ингредиентов. Метод GET.
+    """
 
     class Meta:
         fields = ['id', 'name', 'measurement_unit']
@@ -102,6 +115,9 @@ class IngredientsSerializer(serializers.ModelSerializer):
 
 
 class TagsSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор списка тегов. Метод GET.
+    """
 
     class Meta:
         fields = ['id', 'name', 'color', 'slug']
@@ -109,6 +125,9 @@ class TagsSerializer(serializers.ModelSerializer):
 
 
 class AddIngredientSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор добавления ингредиентов к рецепту.
+    """
     amount = serializers.IntegerField()
     id = serializers.PrimaryKeyRelatedField(
         queryset=Ingredients.objects.all()
@@ -120,6 +139,10 @@ class AddIngredientSerializer(serializers.ModelSerializer):
 
 
 class RecipesSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор создания/просмотра/редактирования/удаления рецептов.
+    Методы POST/GET/PATCH/DELETE.
+    """
     author = CustomUserSerializer(required=False)
     image = Base64ImageField()
     tags = serializers.PrimaryKeyRelatedField(
