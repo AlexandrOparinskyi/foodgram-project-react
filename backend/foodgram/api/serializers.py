@@ -5,15 +5,17 @@ from djoser.serializers import (UserSerializer,
                                 TokenCreateSerializer)
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
-from rest_framework.validators import UniqueValidator
+from rest_framework.validators import (UniqueValidator,
+                                       UniqueTogetherValidator)
 
 from recipes.models import (Ingredients,
                             Tags,
                             Recipes,
                             IngredientsForRecipe,
-                            Subscribe)
+                            Favorite)
 
 
+#Users serializers
 class CustomUserCreateSerializer(UserCreateSerializer):
     """
     Сериализатор для регистрации пользователя. Метод POST.
@@ -106,6 +108,7 @@ class CustomTokenSerializer(TokenCreateSerializer):
         self.fail("invalid_credentials")
 
 
+#Recipe serializers
 class IngredientsSerializer(serializers.ModelSerializer):
     """
     Сериализатор списка ингредиентов. Метод GET.
@@ -212,3 +215,11 @@ class RecipesSerializer(serializers.ModelSerializer):
             many=True
         ).data
         return data
+
+
+#Favorite serializers
+class FavoriteSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = ['id', 'name', 'image', 'cooking_time']
+        model = Recipes

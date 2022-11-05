@@ -1,16 +1,20 @@
 from django.contrib.auth.models import User
 from djoser.views import UserViewSet
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 from .serializers import (CustomUserSerializer,
                           CustomUserCreateSerializer,
                           IngredientsSerializer,
                           TagsSerializer,
-                          RecipesSerializer)
+                          RecipesSerializer,
+                          FavoriteSerializer)
 from recipes.models import (Ingredients,
                             Tags,
-                            Recipes)
+                            Recipes,
+                            Favorite)
 from .permissions import IsAuthorOrReadOnly
 
 
@@ -62,5 +66,27 @@ class RecipesViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly,
                           IsAuthorOrReadOnly]
 
+    def get_serializer_class(self):
+        if self.action == 'favorite':
+            return FavoriteSerializer
+        return RecipesSerializer
+
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
+    @action(detail=True, methods=['post', 'delete'])
+    def favorite(self, request, pk):
+        if self.request.method == 'POST':
+            Favorite.objects.create(
+                user_id=self.request.user.id,
+                recipe_id=pk
+            )
+            serializer = self.get_serializer(Recipes.objects.get(pk=pk))
+            return Response(
+                serializer.data
+            )
+        Favorite.objects.get(
+            user_id=self.request.user.id,
+            recipe_id=pk
+        ).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

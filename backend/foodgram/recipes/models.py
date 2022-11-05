@@ -126,3 +126,25 @@ class IngredientsForRecipe(models.Model):
         'Количество ингредиента',
         validators=[MinValueValidator(1)]
     )
+
+
+class Favorite(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='user_favorite'
+    )
+    recipe = models.ForeignKey(
+        Recipes,
+        on_delete=models.CASCADE,
+        verbose_name='Избранный рецепт',
+        related_name='recipe_favorite'
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='favorite'
+            )
+        ]
