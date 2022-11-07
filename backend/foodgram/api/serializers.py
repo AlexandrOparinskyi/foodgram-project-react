@@ -1,21 +1,16 @@
-from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from djoser.serializers import (UserSerializer,
-                                UserCreateSerializer,
-                                TokenCreateSerializer)
+                                UserCreateSerializer)
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
-from rest_framework.validators import (UniqueValidator,
-                                       UniqueTogetherValidator)
+from rest_framework.validators import UniqueValidator
 
 from recipes.models import (Ingredients,
                             Tags,
                             Recipes,
-                            IngredientsForRecipe,
-                            Favorite)
+                            IngredientsForRecipe)
 
 
-#Users serializers
 class CustomUserCreateSerializer(UserCreateSerializer):
     """
     Сериализатор для регистрации пользователя. Метод POST.
@@ -82,33 +77,6 @@ class CustomUserSerializer(UserSerializer):
         return False
 
 
-class CustomTokenSerializer(TokenCreateSerializer):
-    """
-    Сериализатор создания/удаления токена. Метод POST.
-    """
-    password = serializers.CharField()
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.user = None
-        self.fields['email'] = serializers.CharField(required=False)
-
-    def validate(self, attrs):
-        password = attrs.get('password')
-        params = {'email': attrs.get('email')}
-        self.user = authenticate(
-            request=self.context.get("request"), **params, password=password
-        )
-        if not self.user:
-            self.user = User.objects.filter(**params).first()
-            if self.user and not self.user.check_password(password):
-                self.fail("invalid_credentials")
-        if self.user and self.user.is_active:
-            return attrs
-        self.fail("invalid_credentials")
-
-
-#Recipe serializers
 class IngredientsSerializer(serializers.ModelSerializer):
     """
     Сериализатор списка ингредиентов. Метод GET.
@@ -217,7 +185,6 @@ class RecipesSerializer(serializers.ModelSerializer):
         return data
 
 
-#Favorite serializers
 class FavoriteSerializer(serializers.ModelSerializer):
 
     class Meta:
