@@ -192,3 +192,26 @@ class FavoriteSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ['id', 'name', 'image', 'cooking_time']
         model = Recipes
+
+
+class SubscribeSerializer(serializers.ModelSerializer):
+    recipes = FavoriteSerializer(
+        many=True,
+        read_only=True,
+    )
+    is_subscribe = serializers.SerializerMethodField()
+    recipes_count = serializers.SerializerMethodField()
+
+    class Meta:
+        fields = ['email', 'id', 'username', 'first_name',
+                  'last_name', 'is_subscribe', 'recipes', 'recipes_count']
+        model = User
+
+    def get_is_subscribe(self, obj):
+        return Subscribe.objects.filter(
+            user_id=self.context.get('request').user.id,
+            author_id=obj.id
+        ).exists()
+
+    def get_recipes_count(self, obj):
+        return Recipes.objects.filter(author=obj).count()

@@ -1,17 +1,13 @@
 from django.contrib.auth.models import User
+from django.http import HttpResponse
 from djoser.views import UserViewSet
 from rest_framework import viewsets, status
-from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.decorators import action
+from rest_framework.permissions import (AllowAny,
+                                        IsAuthenticatedOrReadOnly,
+                                        IsAuthenticated)
 from rest_framework.response import Response
-from django.http import HttpResponse
 
-from .serializers import (CustomUserSerializer,
-                          CustomUserCreateSerializer,
-                          IngredientsSerializer,
-                          TagsSerializer,
-                          RecipesSerializer,
-                          FavoriteSerializer)
 from recipes.models import (Ingredients,
                             Tags,
                             Recipes,
@@ -20,6 +16,13 @@ from recipes.models import (Ingredients,
                             Shopping,
                             IngredientsForRecipe)
 from .permissions import IsAuthorOrReadOnly
+from .serializers import (CustomUserSerializer,
+                          CustomUserCreateSerializer,
+                          IngredientsSerializer,
+                          TagsSerializer,
+                          RecipesSerializer,
+                          FavoriteSerializer,
+                          SubscribeSerializer)
 
 
 class CustomUserViewSet(UserViewSet):
@@ -29,6 +32,8 @@ class CustomUserViewSet(UserViewSet):
     http_method_names = ['post', 'get']
 
     def get_serializer_class(self):
+        if self.action == 'subscribe':
+            return SubscribeSerializer
         if self.request.method == 'POST':
             return CustomUserCreateSerializer
         elif self.request.method == 'GET':
@@ -37,7 +42,11 @@ class CustomUserViewSet(UserViewSet):
     def get_queryset(self):
         return User.objects.all()
 
-    @action(detail=True, methods=['post', 'delete'])
+    @action(
+        detail=True,
+        methods=['post', 'delete'],
+        serializer_class=[IsAuthenticated]
+    )
     def subscribe(self, requests, pk):
         if self.request.method == 'POST':
             Subscribe.objects.create(
