@@ -129,6 +129,9 @@ class IngredientsForRecipe(models.Model):
 
 
 class Favorite(models.Model):
+    """
+    Модель добавления рецепта в избранное
+    """
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -146,5 +149,29 @@ class Favorite(models.Model):
             models.UniqueConstraint(
                 fields=['user', 'recipe'],
                 name='favorite'
+            )
+        ]
+
+
+class Shopping(models.Model):
+    """
+    Модель для списка покупок
+    """
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='shopping_user',
+    )
+    recipe = models.ForeignKey(
+        Recipes,
+        on_delete=models.CASCADE,
+        related_name='shopping_recipe'
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='shopping'
             )
         ]

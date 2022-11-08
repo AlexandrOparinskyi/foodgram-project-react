@@ -8,7 +8,8 @@ from rest_framework.validators import UniqueValidator
 from recipes.models import (Ingredients,
                             Tags,
                             Recipes,
-                            IngredientsForRecipe)
+                            IngredientsForRecipe,
+                            Subscribe)
 
 
 class CustomUserCreateSerializer(UserCreateSerializer):
@@ -72,9 +73,10 @@ class CustomUserSerializer(UserSerializer):
         read_only_fields = ['__all__']
 
     def get_is_subscribe(self, obj):
-        if obj.username in obj.is_subscribe.all():
-            return True
-        return False
+        return Subscribe.objects.filter(
+            user_id=self.context.get('request').user.id,
+            author_id=obj.id
+        ).exists()
 
 
 class IngredientsSerializer(serializers.ModelSerializer):
