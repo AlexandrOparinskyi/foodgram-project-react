@@ -19,7 +19,8 @@ from .permissions import IsAuthorOrReadOnly
 from .serializers import (IngredientsSerializer,
                           TagsSerializer,
                           RecipesSerializer,
-                          FavoriteSerializer)
+                          FavoriteSerializer,
+                          SubscribeSerializer)
 
 
 class CustomUserViewSet(UserViewSet):
@@ -28,6 +29,10 @@ class CustomUserViewSet(UserViewSet):
     При post-запросе используется CustomUserCreateSerializer.
     При get-запросе используется CustomUserSerializer.
     """
+
+    def get_serializer_class(self):
+        if self.action == 'subscribe':
+            return SubscribeSerializer
 
     def get_queryset(self):
         return User.objects.all()
@@ -51,7 +56,8 @@ class CustomUserViewSet(UserViewSet):
                 user_id=self.request.user.id,
                 author_id=id
             )
-            return Response(status=status.HTTP_201_CREATED)
+            serializer = self.get_serializer(User.objects.get(id=id))
+            return Response(serializer.data)
         else:
             if Subscribe.objects.filter(
                     user_id=self.request.user.id,

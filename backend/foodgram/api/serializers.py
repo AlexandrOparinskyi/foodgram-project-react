@@ -1,9 +1,9 @@
 from django.contrib.auth.models import User
 from djoser.serializers import (UserSerializer,
                                 UserCreateSerializer)
-from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
+from drf_extra_fields.fields import Base64ImageField
 
 from recipes.models import (Ingredients,
                             Tags,
@@ -70,7 +70,6 @@ class CustomUserSerializer(UserSerializer):
         fields = ['id', 'email', 'username', 'first_name',
                   'last_name', 'is_subscribe']
         model = User
-        #read_only_fields = ['__all__']
 
     def get_is_subscribe(self, obj):
         return Subscribe.objects.filter(
@@ -163,6 +162,13 @@ class RecipesSerializer(serializers.ModelSerializer):
         return recipe
 
     def update(self, instance, validated_data):
+        instance.name = validated_data.get('name', instance.name)
+        instance.image = validated_data.get('image', instance.image)
+        instance.text = validated_data.get('text', instance.text)
+        instance.cooking_time = validated_data.get(
+            'cooking_time',
+            instance.cooking_time
+        )
         instance.tags.set(validated_data.get('tags', instance.tags.all()))
         ingredients = validated_data.pop('ingredients')
         instance.ingredients.clear()
@@ -194,7 +200,7 @@ class FavoriteSerializer(serializers.ModelSerializer):
 class SubscribeSerializer(serializers.ModelSerializer):
     recipes = FavoriteSerializer(
         many=True,
-        read_only=True,
+        read_only=True
     )
     is_subscribe = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
