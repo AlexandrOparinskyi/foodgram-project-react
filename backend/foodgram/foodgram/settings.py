@@ -4,7 +4,6 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
@@ -14,7 +13,10 @@ SECRET_KEY = 'django-insecure-^z=9%qo6#*!cb^glf(s^j2(v*ic$x^k!%xnnn#!v(nfyo+*fv7
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'web',
+    '127.0.0.1',
+]
 
 # Application definition
 
@@ -26,7 +28,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'corsheaders',
     'djoser',
     'rest_framework',
     'rest_framework.authtoken',
@@ -38,7 +39,6 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -78,14 +78,14 @@ DATABASES = {
 }
 
 # DATABASES = {
-#     'default': {
-#         'ENGINE': os.getenv('DB_ENGINE'),
-#         'NAME': os.getenv('DB_NAME'),
-#         'USER': os.getenv('POSTGRES_USER'),
-#         'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-#         'HOST': os.getenv('DB_HOST'),
-#         'PORT': os.getenv('DB_PORT')
-#     }
+#         'default': {
+#             'ENGINE': os.getenv('DB_ENGINE', default='django.db.backends.postgresql'),
+#             'NAME': os.getenv('DB_NAME', default='postgres'),
+#             'USER': os.getenv('POSTGRES_USER', default='postgres'),
+#             'PASSWORD': os.getenv('POSTGRES_PASSWORD', default='postgres'),
+#             'HOST': os.getenv('DB_HOST', default='db'),
+#             'PORT': os.getenv('DB_PORT', default='5432')
+#         }
 # }
 
 # Password validation
@@ -160,8 +160,3 @@ DJOSER = {
         'user_list': ['rest_framework.permissions.AllowAny'],
     }
 }
-
-CORS_URLS_REGEX = r'^/api/.*$'
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
-]

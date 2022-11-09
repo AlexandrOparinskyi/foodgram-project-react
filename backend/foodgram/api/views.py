@@ -19,8 +19,7 @@ from .permissions import IsAuthorOrReadOnly
 from .serializers import (IngredientsSerializer,
                           TagsSerializer,
                           RecipesSerializer,
-                          FavoriteSerializer,
-                          SubscribeSerializer)
+                          FavoriteSerializer)
 
 
 class CustomUserViewSet(UserViewSet):
@@ -29,11 +28,6 @@ class CustomUserViewSet(UserViewSet):
     При post-запросе используется CustomUserCreateSerializer.
     При get-запросе используется CustomUserSerializer.
     """
-    http_method_names = ['post', 'get']
-
-    def get_serializer_class(self):
-        if self.action == 'subscribe':
-            return SubscribeSerializer
 
     def get_queryset(self):
         return User.objects.all()
@@ -43,18 +37,35 @@ class CustomUserViewSet(UserViewSet):
         methods=['post', 'delete'],
         serializer_class=[IsAuthenticated]
     )
-    def subscribe(self, requests, pk):
+    def subscribe(self, requests, id):
         if self.request.method == 'POST':
+            if Subscribe.objects.filter(
+                    user_id=self.request.user.id,
+                    author_id=id
+            ).exists():
+                return Response(
+                    'Вы уже подписаны на этого человека',
+                    status=status.HTTP_400_BAD_REQUEST
+                )
             Subscribe.objects.create(
                 user_id=self.request.user.id,
-                author_id=pk
+                author_id=id
             )
             return Response(status=status.HTTP_201_CREATED)
-        Subscribe.objects.get(
-            user_id=self.request.user.id,
-            author_id=pk
-        ).delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            if Subscribe.objects.filter(
+                    user_id=self.request.user.id,
+                    author_id=id
+            ).exists():
+                Subscribe.objects.get(
+                    user_id=self.request.user.id,
+                    author_id=id
+                ).delete()
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response(
+                'Вы не подписаны на этого человека',
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 class IngredientsViewSet(viewsets.ModelViewSet):

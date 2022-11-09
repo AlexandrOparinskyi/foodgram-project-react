@@ -70,7 +70,7 @@ class CustomUserSerializer(UserSerializer):
         fields = ['id', 'email', 'username', 'first_name',
                   'last_name', 'is_subscribe']
         model = User
-        read_only_fields = ['__all__']
+        #read_only_fields = ['__all__']
 
     def get_is_subscribe(self, obj):
         return Subscribe.objects.filter(
@@ -83,9 +83,6 @@ class IngredientsSerializer(serializers.ModelSerializer):
     """
     Сериализатор списка ингредиентов. Метод GET.
     """
-    # id = serializers.ReadOnlyField(source='ingredients.id')
-    # name = serializers.ReadOnlyField(source='ingredients.name')
-    # measurement_unit = serializers.ReadOnlyField(source='ingredients.measurement_unit')
 
     class Meta:
         fields = ['id', 'name', 'measurement_unit']
