@@ -16,9 +16,7 @@ from recipes.models import (Ingredients,
                             Shopping,
                             IngredientsForRecipe)
 from .permissions import IsAuthorOrReadOnly
-from .serializers import (CustomUserSerializer,
-                          CustomUserCreateSerializer,
-                          IngredientsSerializer,
+from .serializers import (IngredientsSerializer,
                           TagsSerializer,
                           RecipesSerializer,
                           FavoriteSerializer,
@@ -28,16 +26,14 @@ from .serializers import (CustomUserSerializer,
 class CustomUserViewSet(UserViewSet):
     """
     ViewsSet пользователя.
+    При post-запросе используется CustomUserCreateSerializer.
+    При get-запросе используется CustomUserSerializer.
     """
     http_method_names = ['post', 'get']
 
     def get_serializer_class(self):
         if self.action == 'subscribe':
             return SubscribeSerializer
-        if self.request.method == 'POST':
-            return CustomUserCreateSerializer
-        elif self.request.method == 'GET':
-            return CustomUserSerializer
 
     def get_queryset(self):
         return User.objects.all()
