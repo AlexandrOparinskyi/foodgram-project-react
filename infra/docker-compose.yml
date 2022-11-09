@@ -9,7 +9,7 @@ services:
     env_file:
       - ../backend/.env
 
-  web:
+  backend:
     build:
       context: ../backend
       dockerfile: Dockerfile
@@ -27,7 +27,7 @@ services:
     volumes:
       - ../frontend/:/app/result_build/
     depends_on:
-      - web
+      - backend
 
   nginx:
     image: nginx:1.19.3
