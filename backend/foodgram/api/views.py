@@ -48,14 +48,13 @@ class CustomUserViewSet(UserViewSet):
         serializer_class=[IsAuthenticated]
     )
     def subscribe(self, requests, id):
+        if not User.objects.filter(id=id).exists():
+            return Response(
+                'Такого пользователя не существует',
+                status=status.HTTP_404_NOT_FOUND
+            )
         if self.request.method == 'POST':
-            user = User.objects.get(id=id)
-            if user not in User.objects.all():
-                return Response(
-                    'Такого пользователя не существует',
-                    status=status.HTTP_404_NOT_FOUND
-                )
-            elif Subscribe.objects.filter(
+            if Subscribe.objects.filter(
                     user_id=self.request.user.id,
                     author_id=id
             ).exists():
@@ -79,11 +78,6 @@ class CustomUserViewSet(UserViewSet):
                     author_id=id
                 ).delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
-            elif id not in User.objects.all():
-                return Response(
-                    'Такого пользователя не существует',
-                    status=status.HTTP_404_NOT_FOUND
-                )
             return Response(
                 'Вы не подписаны на этого человека',
                 status=status.HTTP_400_BAD_REQUEST
