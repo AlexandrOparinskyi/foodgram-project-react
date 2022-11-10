@@ -194,6 +194,7 @@ class RecipesSerializer(serializers.ModelSerializer):
                 ingredients=ingredient['id'],
                 amount=ingredient['amount']
             )
+        instance.save()
         return instance
 
     def to_representation(self, instance):

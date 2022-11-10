@@ -7,6 +7,8 @@ from rest_framework.permissions import (AllowAny,
                                         IsAuthenticatedOrReadOnly,
                                         IsAuthenticated)
 from rest_framework.response import Response
+from rest_framework import filters
+from django_filters.rest_framework import DjangoFilterBackend
 
 from recipes.models import (Ingredients,
                             Tags,
@@ -112,7 +114,8 @@ class IngredientsViewSet(viewsets.ModelViewSet):
     serializer_class = IngredientsSerializer
     http_method_names = ['get']
     permission_classes = [AllowAny]
-    pagination_class = None
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name']
 
 
 class TagsViewSet(viewsets.ModelViewSet):
@@ -123,7 +126,6 @@ class TagsViewSet(viewsets.ModelViewSet):
     serializer_class = TagsSerializer
     http_method_names = ['get']
     permission_classes = [AllowAny]
-    pagination_class = None
 
 
 class RecipesViewSet(viewsets.ModelViewSet):
@@ -136,6 +138,11 @@ class RecipesViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly,
                           IsAuthorOrReadOnly]
     pagination_class = CustomPagination
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = [
+        'name__author', 'name__tags'
+    ]
+
 
     def get_serializer_class(self):
         if self.action == 'favorite' or self.action == 'shopping_cart':
