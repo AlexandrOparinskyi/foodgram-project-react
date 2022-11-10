@@ -10,6 +10,7 @@ from rest_framework.response import Response
 from rest_framework import filters
 from django_filters.rest_framework import DjangoFilterBackend
 
+from .filters import RecipeFilters ,IngredientFilter
 from recipes.models import (Ingredients,
                             Tags,
                             Recipes,
@@ -106,7 +107,7 @@ class CustomUserViewSet(UserViewSet):
         return self.get_paginated_response(serializer.data)
 
 
-class IngredientsViewSet(viewsets.ModelViewSet):
+class IngredientsViewSet(viewsets.ReadOnlyModelViewSet):
     """
     ViewSet списка ингредиентов.
     """
@@ -114,11 +115,11 @@ class IngredientsViewSet(viewsets.ModelViewSet):
     serializer_class = IngredientsSerializer
     http_method_names = ['get']
     permission_classes = [AllowAny]
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['name']
+    filter_backends = [DjangoFilterBackend]
+    search_fields = IngredientFilter
 
 
-class TagsViewSet(viewsets.ModelViewSet):
+class TagsViewSet(viewsets.ReadOnlyModelViewSet):
     """
     ViewSet списка тегов.
     """
@@ -138,7 +139,8 @@ class RecipesViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly,
                           IsAuthorOrReadOnly]
     pagination_class = CustomPagination
-
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = RecipeFilters
 
     def get_serializer_class(self):
         if self.action == 'favorite' or self.action == 'shopping_cart':

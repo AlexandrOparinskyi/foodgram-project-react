@@ -78,7 +78,7 @@ class Recipes(models.Model):
     )
     image = models.ImageField(
         'Картинка',
-        upload_to='media'
+        upload_to='recipes/images'
     )
     text = models.TextField(
         'Описание'

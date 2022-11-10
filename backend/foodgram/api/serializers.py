@@ -134,7 +134,7 @@ class CustomBase64Image(serializers.ImageField):
         if isinstance(data, str) and data.startswith('data:image'):
             format, imgstr = data.split(';base64,')
             ext = format.split('/')[-1]
-            data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
+            data = ContentFile(base64.b64decode(imgstr), name='image.' + ext)
         return super().to_internal_value(data)
 
 
@@ -224,6 +224,28 @@ class FavoriteSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ['id', 'name', 'image', 'cooking_time']
         model = Recipes
+
+
+class FavoritesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Favorite
+        fields = ('user', 'recipe')
+
+    def validate(self, data):
+        request = self.context.get('request')
+        if not request or request.user.is_anonymous:
+            return False
+        recipe = data['recipe']
+        if request.user.favorite_user.filter(recipe=recipe).exists():
+            raise serializers.ValidationError(
+                'Выбранный рецепт уже добавлен в избранные!'
+            )
+        return data
+
+    def to_representation(self, instance):
+        request = self.context.get('request')
+        context = {'request': request}
+        return FavoriteSerializer(instance.recipe, context=context).data
 
 
 class SubscribeSerializer(serializers.ModelSerializer):
