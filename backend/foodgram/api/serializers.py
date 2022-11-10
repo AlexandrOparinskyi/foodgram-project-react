@@ -9,7 +9,11 @@ from recipes.models import (Ingredients,
                             Tags,
                             Recipes,
                             IngredientsForRecipe,
-                            Subscribe)
+                            Subscribe,
+                            Favorite,
+                            Shopping)
+from django.core.files.base import ContentFile
+import base64
 
 
 class CustomUserCreateSerializer(UserCreateSerializer):
@@ -125,13 +129,22 @@ class ShowIngredientsSerializer(serializers.ModelSerializer):
         model = IngredientsForRecipe
 
 
+class CustomBase64Image(serializers.ImageField):
+    def to_internal_value(self, data):
+        if isinstance(data, str) and data.startswith('data:image'):
+            format, imgstr = data.split(';base64,')
+            ext = format.split('/')[-1]
+            data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
+        return super().to_internal_value(data)
+
+
 class RecipesSerializer(serializers.ModelSerializer):
     """
     Сериализатор создания/просмотра/редактирования/удаления рецептов.
     Методы POST/GET/PATCH/DELETE.
     """
     author = CustomUserSerializer(required=False)
-    image = Base64ImageField()
+    image = CustomBase64Image()
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tags.objects.all(),
         many=True
@@ -140,10 +153,13 @@ class RecipesSerializer(serializers.ModelSerializer):
         many=True,
         write_only=True
     )
+    is_favorite = serializers.SerializerMethodField()
+    is_in_shopping_cart = serializers.SerializerMethodField()
 
     class Meta:
         fields = ['id', 'ingredients', 'tags', 'name',
-                  'author', 'image', 'text', 'cooking_time']
+                  'author', 'image', 'text', 'cooking_time',
+                  'is_favorite', 'is_in_shopping_cart']
         model = Recipes
 
     def create(self, validated_data):
@@ -188,6 +204,18 @@ class RecipesSerializer(serializers.ModelSerializer):
             many=True
         ).data
         return data
+
+    def get_is_favorite(self, obj):
+        return Favorite.objects.filter(
+            user=self.context.get('request').user,
+            recipe=obj
+        ).exists()
+
+    def get_is_in_shopping_cart(self, obj):
+        return Shopping.objects.filter(
+            user=self.context.get('request').user,
+            recipe=obj
+        ).exists()
 
 
 class FavoriteSerializer(serializers.ModelSerializer):

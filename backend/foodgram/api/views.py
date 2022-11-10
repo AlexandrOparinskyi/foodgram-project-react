@@ -48,6 +48,11 @@ class CustomUserViewSet(UserViewSet):
         serializer_class=[IsAuthenticated]
     )
     def subscribe(self, requests, id):
+        if User.objects.get(id=id) == self.request.user:
+            return Response(
+                'Нельзя подписаться на себя',
+                status=status.HTTP_400_BAD_REQUEST
+            )
         if not User.objects.filter(id=id).exists():
             return Response(
                 'Такого пользователя не существует',
@@ -130,6 +135,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post', 'patch', 'delete']
     permission_classes = [IsAuthenticatedOrReadOnly,
                           IsAuthorOrReadOnly]
+    pagination_class = CustomPagination
 
     def get_serializer_class(self):
         if self.action == 'favorite' or self.action == 'shopping_cart':
@@ -146,18 +152,29 @@ class RecipesViewSet(viewsets.ModelViewSet):
                 user_id=self.request.user,
                 recipe_id=pk
             ).exists():
-                return Response(status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    'Рецепт уже в избранном',
+                    status=status.HTTP_400_BAD_REQUEST
+                )
             Favorite.objects.create(
                 user_id=self.request.user.id,
                 recipe_id=pk
             )
             serializer = self.get_serializer(Recipes.objects.get(pk=pk))
             return Response(serializer.data)
-        Favorite.objects.get(
-            user_id=self.request.user.id,
-            recipe_id=pk
-        ).delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        if Favorite.objects.filter(
+                user_id=self.request.user,
+                recipe_id=pk
+        ).exists():
+            Favorite.objects.get(
+                user_id=self.request.user.id,
+                recipe_id=pk
+            ).delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            'Рецепта нету в избранном',
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
     @action(detail=True, methods=['post', 'delete'])
     def shopping_cart(self, request, pk):
@@ -166,18 +183,29 @@ class RecipesViewSet(viewsets.ModelViewSet):
                 user_id=self.request.user.id,
                 recipe_id=pk
             ).exists():
-                return Response(status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    'Рецепт уже в списке покупок',
+                    status=status.HTTP_400_BAD_REQUEST
+                )
             Shopping.objects.create(
                 user_id=self.request.user.id,
                 recipe_id=pk
             )
             serializer = self.get_serializer(Recipes.objects.get(pk=pk))
             return Response(serializer.data)
-        Shopping.objects.get(
-            user_id=self.request.user.id,
-            recipe_id=pk
-        ).delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        if Shopping.objects.filter(
+                user_id=self.request.user.id,
+                recipe_id=pk
+        ).exists():
+            Shopping.objects.get(
+                user_id=self.request.user.id,
+                recipe_id=pk
+            ).delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            'Рецепта нету в списке покупок',
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
     @action(detail=False)
     def download_shopping_cart(self, request):
@@ -191,7 +219,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
         file = 'Список покупок:\n'
         for ingredients in shopping_cart:
             name, measurement_unit, amount = ingredients
-            file += f'{name}: {amount} {measurement_unit}'
+            file += f'{name}: {amount} {measurement_unit}\n'
         response = HttpResponse(file, content_type='text/plain')
         response['Content-Disposition'] = (
             'attachment; filename="shopping-list.txt"'
