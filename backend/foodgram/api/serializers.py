@@ -198,10 +198,7 @@ class FavoriteSerializer(serializers.ModelSerializer):
 
 
 class SubscribeSerializer(serializers.ModelSerializer):
-    recipes = FavoriteSerializer(
-        many=True,
-        read_only=True
-    )
+    recipes = serializers.SerializerMethodField()
     is_subscribe = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
 
@@ -209,6 +206,14 @@ class SubscribeSerializer(serializers.ModelSerializer):
         fields = ['email', 'id', 'username', 'first_name',
                   'last_name', 'is_subscribe', 'recipes', 'recipes_count']
         model = User
+
+    def get_recipes(self, obj):
+        recipes = Recipes.objects.filter(author=obj)
+        return FavoriteSerializer(
+            recipes,
+            many=True,
+            context={'request': self.context.get('request')}
+        ).data
 
     def get_is_subscribe(self, obj):
         return Subscribe.objects.filter(

@@ -16,23 +16,28 @@ from recipes.models import (Ingredients,
                             Shopping,
                             IngredientsForRecipe)
 from .permissions import IsAuthorOrReadOnly
+from .paginations import CustomPagination
 from .serializers import (IngredientsSerializer,
                           TagsSerializer,
                           RecipesSerializer,
                           FavoriteSerializer,
-                          SubscribeSerializer)
+                          SubscribeSerializer,
+                          CustomUserSerializer,
+                          CustomUserCreateSerializer)
 
 
 class CustomUserViewSet(UserViewSet):
     """
     ViewsSet пользователя.
-    При post-запросе используется CustomUserCreateSerializer.
-    При get-запросе используется CustomUserSerializer.
     """
+    pagination_class = CustomPagination
 
     def get_serializer_class(self):
-        if self.action == 'subscribe':
+        if self.action == 'subscribe' or self.action == 'subscriptions':
             return SubscribeSerializer
+        if self.request.method == 'GET':
+            return CustomUserSerializer
+        return CustomUserCreateSerializer
 
     def get_queryset(self):
         return User.objects.all()
@@ -44,7 +49,13 @@ class CustomUserViewSet(UserViewSet):
     )
     def subscribe(self, requests, id):
         if self.request.method == 'POST':
-            if Subscribe.objects.filter(
+            user = User.objects.get(id=id)
+            if user not in User.objects.all():
+                return Response(
+                    'Такого пользователя не существует',
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            elif Subscribe.objects.filter(
                     user_id=self.request.user.id,
                     author_id=id
             ).exists():
@@ -68,10 +79,30 @@ class CustomUserViewSet(UserViewSet):
                     author_id=id
                 ).delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
+            elif id not in User.objects.all():
+                return Response(
+                    'Такого пользователя не существует',
+                    status=status.HTTP_404_NOT_FOUND
+                )
             return Response(
                 'Вы не подписаны на этого человека',
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+    @action(
+        detail=False,
+        methods=['get'],
+        serializer_class=[IsAuthenticated],
+    )
+    def subscriptions(self, request):
+        queryset = User.objects.filter(is_subscribe__user=self.request.user)
+        page = self.paginate_queryset(queryset)
+        serializer = SubscribeSerializer(
+            page,
+            many=True,
+            context={'request': request}
+        )
+        return self.get_paginated_response(serializer.data)
 
 
 class IngredientsViewSet(viewsets.ModelViewSet):
