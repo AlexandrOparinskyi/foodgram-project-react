@@ -39,9 +39,9 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.REPOS_BACKEND }}:latest
+          tags: cd backend/ && ${{ secrets.DOCKER_USERNAME }}/${{ secrets.REPOS_BACKEND }}:latest
       - name: Push frontend to Docker Hub
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.REPOS_FRONTEND }}:latest
+          tags: cd frontend/ && ${{ secrets.DOCKER_USERNAME }}/${{ secrets.REPOS_FRONTEND }}:latest
