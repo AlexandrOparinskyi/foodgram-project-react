@@ -62,7 +62,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
           script: |
-            sudo docker pull ${{ secrets.DOCKER_USERNAME }} >> .env/${{ secrets.REPOS_BACKEND }}
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.REPOS_BACKEND }}
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.REPOS_FRONTEND }}
             sudo docker stop $(sudo docker ps -a -q)
             sudo docker-compose up -d --build
