@@ -1,9 +1,11 @@
+import base64
+
 from django.contrib.auth.models import User
+from django.core.files.base import ContentFile
 from djoser.serializers import (UserSerializer,
                                 UserCreateSerializer)
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
-from drf_extra_fields.fields import Base64ImageField
 
 from recipes.models import (Ingredients,
                             Tags,
@@ -12,8 +14,6 @@ from recipes.models import (Ingredients,
                             Subscribe,
                             Favorite,
                             Shopping)
-from django.core.files.base import ContentFile
-import base64
 
 
 class CustomUserCreateSerializer(UserCreateSerializer):
@@ -122,7 +122,9 @@ class ShowIngredientsSerializer(serializers.ModelSerializer):
     """
     id = serializers.ReadOnlyField(source='ingredients.id')
     name = serializers.ReadOnlyField(source='ingredients.name')
-    measurement_unit = serializers.ReadOnlyField(source='ingredients.measurement_unit')
+    measurement_unit = serializers.ReadOnlyField(
+        source='ingredients.measurement_unit'
+    )
 
     class Meta:
         fields = ['id', 'name', 'measurement_unit', 'amount']
@@ -230,17 +232,6 @@ class FavoritesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Favorite
         fields = ('user', 'recipe')
-
-    def validate(self, data):
-        request = self.context.get('request')
-        if not request or request.user.is_anonymous:
-            return False
-        recipe = data['recipe']
-        if request.user.favorite_user.filter(recipe=recipe).exists():
-            raise serializers.ValidationError(
-                'Выбранный рецепт уже добавлен в избранные!'
-            )
-        return data
 
     def to_representation(self, instance):
         request = self.context.get('request')

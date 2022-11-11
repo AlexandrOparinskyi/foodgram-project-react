@@ -1,16 +1,15 @@
 from django.contrib.auth.models import User
 from django.http import HttpResponse
+from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
+from rest_framework import filters
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import (AllowAny,
                                         IsAuthenticatedOrReadOnly,
                                         IsAuthenticated)
 from rest_framework.response import Response
-from rest_framework import filters
-from django_filters.rest_framework import DjangoFilterBackend
 
-from .filters import RecipeFilters ,IngredientFilter
 from recipes.models import (Ingredients,
                             Tags,
                             Recipes,
@@ -18,8 +17,9 @@ from recipes.models import (Ingredients,
                             Subscribe,
                             Shopping,
                             IngredientsForRecipe)
-from .permissions import IsAuthorOrReadOnly
+from .filters import RecipeFilters
 from .paginations import CustomPagination
+from .permissions import IsAuthorOrReadOnly
 from .serializers import (IngredientsSerializer,
                           TagsSerializer,
                           RecipesSerializer,
@@ -113,10 +113,9 @@ class IngredientsViewSet(viewsets.ReadOnlyModelViewSet):
     """
     queryset = Ingredients.objects.all()
     serializer_class = IngredientsSerializer
-    http_method_names = ['get']
     permission_classes = [AllowAny]
-    filter_backends = [DjangoFilterBackend]
-    search_fields = IngredientFilter
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name', 'measurement_unit']
 
 
 class TagsViewSet(viewsets.ReadOnlyModelViewSet):
@@ -125,7 +124,6 @@ class TagsViewSet(viewsets.ReadOnlyModelViewSet):
     """
     queryset = Tags.objects.all()
     serializer_class = TagsSerializer
-    http_method_names = ['get']
     permission_classes = [AllowAny]
 
 
