@@ -76,20 +76,19 @@ class CustomUserViewSet(UserViewSet):
             )
             serializer = self.get_serializer(User.objects.get(id=id))
             return Response(serializer.data)
-        else:
-            if Subscribe.objects.filter(
-                    user_id=self.request.user.id,
-                    author_id=id
-            ).exists():
-                Subscribe.objects.get(
-                    user_id=self.request.user.id,
-                    author_id=id
-                ).delete()
-                return Response(status=status.HTTP_204_NO_CONTENT)
-            return Response(
-                'Вы не подписаны на этого человека',
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        if Subscribe.objects.filter(
+                 user_id=self.request.user.id,
+                author_id=id
+        ).exists():
+            Subscribe.objects.get(
+                user_id=self.request.user.id,
+                author_id=id
+            ).delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            'Вы не подписаны на этого человека',
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
     @action(
         detail=False,
