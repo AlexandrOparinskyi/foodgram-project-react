@@ -1,4 +1,5 @@
 from django_filters import rest_framework
+from django_filters import filters
 
 from recipes.models import Recipes, Tags, Ingredients
 
@@ -9,10 +10,10 @@ class RecipeFilters(rest_framework.FilterSet):
         field_name='tags__slug',
         to_field_name='slug'
     )
-    is_favorite = rest_framework.BooleanFilter(
+    is_favorite = filters.BooleanFilter(
         method='get_is_favorite'
     )
-    is_in_shopping_cart = rest_framework.BooleanFilter(
+    is_in_shopping_cart = filters.BooleanFilter(
         method='get_is_in_shopping_cart'
     )
 
