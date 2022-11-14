@@ -155,13 +155,13 @@ class RecipesSerializer(serializers.ModelSerializer):
         many=True,
         write_only=True
     )
-    is_favorite = serializers.SerializerMethodField()
+    is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
 
     class Meta:
         fields = ['id', 'ingredients', 'tags', 'name',
                   'author', 'image', 'text', 'cooking_time',
-                  'is_favorite', 'is_in_shopping_cart']
+                  'is_favorited', 'is_in_shopping_cart']
         model = Recipes
 
     def create(self, validated_data):
@@ -208,7 +208,7 @@ class RecipesSerializer(serializers.ModelSerializer):
         ).data
         return data
 
-    def get_is_favorite(self, obj):
+    def get_is_favorited(self, obj):
         return Favorite.objects.filter(
             user=self.context.get('request').user,
             recipe=obj
@@ -226,12 +226,6 @@ class FavoriteSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ['id', 'name', 'image', 'cooking_time']
         model = Recipes
-
-
-class FavoritesSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Favorite
-        fields = ('user', 'recipe')
 
     def to_representation(self, instance):
         request = self.context.get('request')
