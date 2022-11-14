@@ -16,7 +16,7 @@ from recipes.models import (Ingredients,
                             Subscribe,
                             Shopping,
                             IngredientsForRecipe)
-from .filters import RecipeFilters
+from .filters import RecipeFilters, IngredientsFilter
 from .paginations import CustomPagination
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (IngredientsSerializer,
@@ -109,8 +109,8 @@ class IngredientsViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredients.objects.all()
     serializer_class = IngredientsSerializer
     permission_classes = [AllowAny]
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['name', 'measurement_unit']
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = IngredientsFilter
 
 
 class TagsViewSet(viewsets.ReadOnlyModelViewSet):
