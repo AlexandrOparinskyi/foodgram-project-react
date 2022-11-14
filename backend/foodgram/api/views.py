@@ -23,9 +23,7 @@ from .serializers import (IngredientsSerializer,
                           TagsSerializer,
                           RecipesSerializer,
                           FavoriteSerializer,
-                          SubscribeSerializer,
-                          CustomUserSerializer,
-                          CustomUserCreateSerializer)
+                          SubscribeSerializer)
 
 
 class CustomUserViewSet(viewsets.GenericViewSet):
