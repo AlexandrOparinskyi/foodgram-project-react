@@ -37,9 +37,10 @@ class RecipeFilters(rest_framework.FilterSet):
 
 
 class IngredientsFilter(rest_framework.FilterSet):
-    tags = rest_framework.CharFilter(
+    name = filters.CharFilter(
         field_name='name',
-        lookup_expr='istartswith'
+        lookup_expr='istartswith',
+
     )
 
     class Meta:
