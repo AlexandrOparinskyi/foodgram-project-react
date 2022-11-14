@@ -10,10 +10,10 @@ class RecipeFilters(rest_framework.FilterSet):
         field_name='tags__slug',
         to_field_name='slug'
     )
-    is_favorite = filters.BooleanFilter(
+    is_favorite = filters.NumberFilter(
         method='get_is_favorite'
     )
-    is_in_shopping_cart = filters.BooleanFilter(
+    is_in_shopping_cart = filters.NumberFilter(
         method='get_is_in_shopping_cart'
     )
 
@@ -23,14 +23,14 @@ class RecipeFilters(rest_framework.FilterSet):
 
     def get_is_favorite(self, queryset, name, value):
         if value:
-            return Recipes.objects.filter(
+            return queryset.filter(
                 recipe_favorite__user=self.request.user
             )
         return Recipes.objects.all()
 
     def get_is_in_shopping_cart(self, queryset, name, value):
         if value:
-            return Recipes.objects.filter(
+            return queryset.filter(
                 shopping_recipe__user=self.request.user
             )
         return Recipes.objects.all()

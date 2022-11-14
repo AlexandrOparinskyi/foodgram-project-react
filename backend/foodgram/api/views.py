@@ -134,9 +134,6 @@ class RecipesViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_class = RecipeFilters
 
-    def get_queryset(self):
-        return Recipes.objects.all()
-
     def get_serializer_class(self):
         if self.action == 'favorite' or self.action == 'shopping_cart':
             return FavoriteSerializer
