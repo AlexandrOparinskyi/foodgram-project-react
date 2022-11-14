@@ -6,7 +6,8 @@ from recipes.models import Recipes, Tags
 class RecipeFilters(rest_framework.FilterSet):
     tags = rest_framework.ModelMultipleChoiceFilter(
         queryset=Tags.objects.all(),
-        field_name='tags_slug'
+        field_name='tags__slug',
+        to_field_name='slug'
     )
     is_favorite = rest_framework.BooleanFilter(
         method='get_is_favorite'

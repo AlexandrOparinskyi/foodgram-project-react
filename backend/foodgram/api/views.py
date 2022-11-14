@@ -1,7 +1,6 @@
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
-from djoser.views import UserViewSet
 from rest_framework import filters
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
@@ -29,18 +28,17 @@ from .serializers import (IngredientsSerializer,
                           CustomUserCreateSerializer)
 
 
-class CustomUserViewSet(UserViewSet):
+class CustomUserViewSet(viewsets.GenericViewSet):
     """
     ViewsSet пользователя.
     """
+    queryset = User.objects.all()
     pagination_class = CustomPagination
+    SubscribeSerializer = SubscribeSerializer
 
     def get_serializer_class(self):
         if self.action == 'subscribe' or self.action == 'subscriptions':
             return SubscribeSerializer
-        if self.request.method == 'GET':
-            return CustomUserSerializer
-        return CustomUserCreateSerializer
 
     def get_queryset(self):
         return User.objects.all()
@@ -50,13 +48,13 @@ class CustomUserViewSet(UserViewSet):
         methods=['post', 'delete'],
         serializer_class=[IsAuthenticated]
     )
-    def subscribe(self, requests, id):
-        if User.objects.get(id=id) == self.request.user:
+    def subscribe(self, requests, pk):
+        if User.objects.get(pk=pk) == self.request.user:
             return Response(
                 'Нельзя подписаться на себя',
                 status=status.HTTP_400_BAD_REQUEST
             )
-        if not User.objects.filter(id=id).exists():
+        if not User.objects.filter(pk=pk).exists():
             return Response(
                 'Такого пользователя не существует',
                 status=status.HTTP_404_NOT_FOUND
@@ -64,7 +62,7 @@ class CustomUserViewSet(UserViewSet):
         if self.request.method == 'POST':
             if Subscribe.objects.filter(
                     user_id=self.request.user.id,
-                    author_id=id
+                    author_id=pk
             ).exists():
                 return Response(
                     'Вы уже подписаны на этого человека',
@@ -72,17 +70,17 @@ class CustomUserViewSet(UserViewSet):
                 )
             Subscribe.objects.create(
                 user_id=self.request.user.id,
-                author_id=id
+                author_id=pk
             )
-            serializer = self.get_serializer(User.objects.get(id=id))
+            serializer = self.get_serializer(User.objects.get(pk=pk))
             return Response(serializer.data)
         if Subscribe.objects.filter(
                  user_id=self.request.user.id,
-                author_id=id
+                author_id=pk
         ).exists():
             Subscribe.objects.get(
                 user_id=self.request.user.id,
-                author_id=id
+                author_id=pk
             ).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(
@@ -138,6 +136,9 @@ class RecipesViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend]
     filterset_class = RecipeFilters
+
+    def get_queryset(self):
+        return Recipes.objects.all()
 
     def get_serializer_class(self):
         if self.action == 'favorite' or self.action == 'shopping_cart':
