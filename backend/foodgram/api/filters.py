@@ -40,7 +40,6 @@ class IngredientsFilter(rest_framework.FilterSet):
     name = filters.CharFilter(
         field_name='name',
         lookup_expr='istartswith',
-
     )
 
     class Meta:
