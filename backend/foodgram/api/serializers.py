@@ -107,7 +107,9 @@ class AddIngredientSerializer(serializers.ModelSerializer):
     """
     Сериализатор добавления ингредиентов к рецепту.
     """
-    amount = serializers.IntegerField()
+    amount = serializers.IntegerField(
+        validators=[MinValueValidator(1)]
+    )
     id = serializers.PrimaryKeyRelatedField(
         queryset=Ingredients.objects.all()
     )
@@ -154,8 +156,7 @@ class RecipesSerializer(serializers.ModelSerializer):
     )
     ingredients = AddIngredientSerializer(
         many=True,
-        write_only=True,
-        validators=[MinValueValidator(1)]
+        write_only=True
     )
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
