@@ -5,13 +5,13 @@ from recipes.models import Recipes, Tags, Ingredients
 
 
 class RecipeFilters(rest_framework.FilterSet):
-    tags = rest_framework.ModelMultipleChoiceFilter(
+    tags = filters.ModelMultipleChoiceFilter(
         queryset=Tags.objects.all(),
         field_name='tags__slug',
         to_field_name='slug'
     )
     is_favorited = filters.NumberFilter(
-        method='get_is_favorited'
+        method='get_is_favorite'
     )
     is_in_shopping_cart = filters.NumberFilter(
         method='get_is_in_shopping_cart'
@@ -21,7 +21,7 @@ class RecipeFilters(rest_framework.FilterSet):
         model = Recipes
         fields = ['tags', 'is_favorited', 'is_in_shopping_cart', 'author']
 
-    def get_is_favorited(self, queryset, name, value):
+    def get_is_favorite(self, queryset, name, value):
         if value:
             return queryset.filter(
                 recipe_favorite__user=self.request.user
