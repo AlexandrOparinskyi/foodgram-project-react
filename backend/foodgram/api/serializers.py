@@ -6,6 +6,7 @@ from djoser.serializers import (UserSerializer,
                                 UserCreateSerializer)
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
+from django.core.validators import MaxValueValidator
 
 from recipes.models import (Ingredients,
                             Tags,
@@ -243,6 +244,7 @@ class SubscribeSerializer(serializers.ModelSerializer):
         return FavoriteSerializer(
             recipes,
             many=True,
+            validators=[MaxValueValidator(Recipes.objects.all), 3],
             context={'request': self.context.get('request')}
         ).data
 
