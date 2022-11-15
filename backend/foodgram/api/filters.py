@@ -23,10 +23,10 @@ class RecipeFilters(rest_framework.FilterSet):
 
     def get_is_favorite(self, queryset, name, value):
         if value:
-            return Recipes.objects.filter(
+            return queryset.filter(
                 recipe_favorite__user=self.request.user
             )
-        return Recipes.objects.all()
+        return queryset
 
     def get_is_in_shopping_cart(self, queryset, name, value):
         if value:
