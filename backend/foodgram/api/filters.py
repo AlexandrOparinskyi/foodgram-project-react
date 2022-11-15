@@ -11,7 +11,7 @@ class RecipeFilters(rest_framework.FilterSet):
         to_field_name='slug'
     )
     is_favorited = filters.NumberFilter(
-        method='get_is_favorite'
+        method='get_is_favorited'
     )
     is_in_shopping_cart = filters.NumberFilter(
         method='get_is_in_shopping_cart'
