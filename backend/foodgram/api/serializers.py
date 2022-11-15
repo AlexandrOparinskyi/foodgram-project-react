@@ -244,7 +244,7 @@ class SubscribeSerializer(serializers.ModelSerializer):
         return FavoriteSerializer(
             recipes,
             many=True,
-            validators=[MaxValueValidator(Recipes.objects.all), 3],
+            validators=[MaxValueValidator(3)],
             context={'request': self.context.get('request')}
         ).data
 
