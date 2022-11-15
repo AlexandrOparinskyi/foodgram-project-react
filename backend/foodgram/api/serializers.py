@@ -6,6 +6,7 @@ from djoser.serializers import (UserSerializer,
                                 UserCreateSerializer)
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
+from django.core.validators import MinValueValidator
 
 from recipes.models import (Ingredients,
                             Tags,
@@ -153,7 +154,8 @@ class RecipesSerializer(serializers.ModelSerializer):
     )
     ingredients = AddIngredientSerializer(
         many=True,
-        write_only=True
+        write_only=True,
+        validators=[MinValueValidator(1)]
     )
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
