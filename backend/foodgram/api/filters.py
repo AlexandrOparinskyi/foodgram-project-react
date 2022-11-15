@@ -10,7 +10,7 @@ class RecipeFilters(rest_framework.FilterSet):
         field_name='tags__slug',
         to_field_name='slug'
     )
-    is_favorited = filters.NumberFilter(
+    is_favorite = filters.NumberFilter(
         method='get_is_favorite'
     )
     is_in_shopping_cart = filters.NumberFilter(
@@ -19,7 +19,7 @@ class RecipeFilters(rest_framework.FilterSet):
 
     class Meta:
         model = Recipes
-        fields = ['tags', 'is_favorited', 'is_in_shopping_cart', 'author']
+        fields = ['tags', 'is_favorite', 'is_in_shopping_cart', 'author']
 
     def get_is_favorite(self, queryset, name, value):
         if value:
